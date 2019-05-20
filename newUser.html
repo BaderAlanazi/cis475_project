@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- 
+    I used bootstrap 4 for the forms
+    Bader Alanzi
+--> 
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New User</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+        <style>
+            .alert {
+                margin-bottom: 1px;
+                height: 30px;
+                line-height:30px;
+                padding:0px 15px;
+            }
+            .btn{
+                width: 100%;
+            }
+            .btn:hover {
+                cursor: pointer;
+            }
+            .container{
+                width: 36%;
+                border: 1px dotted rgb(94, 143, 94);
+                border-radius: 10px;
+                border-width: thin;
+                background-color: rgba(85, 181, 85, 0.54);
+            }
+            input[type=text], input[type=password]{
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body style="background-color: #8fd2a070;">
+        <br>
+        <div class="container">
+            <br>
+            <h5 style="text-align: center">Please fill the form below to register</h5>
+            <hr>
+            <form class="login-form" method="post" action="newUser.php" onsubmit="return validate()">
+
+                <div id="available"></div>
+
+                <input type="text" class="form-control" id="uN" name="username" placeholder="Username" onkeyup="checkUsername(this.value)"><br>
+                <input type="text" class="form-control" id="fN" placeholder="FirstName" name="firstname" /><br>
+                <input type="text" class="form-control" id="lN" placeholder="LastName" name="lastname" /><br>
+                <input type="password" class="form-control" id="pwd" placeholder="Password" name="password" /><br>
+
+                    <input type="submit" value="Register User" class="btn btn-success" />
+                <br><br>
+            </form>
+        </div>
+        
+        <script>
+            function checkUsername(userNameInput) {
+                // check for userNameInput and validate 
+                var rExp = new RegExp('\S*(\S*([a-zA-Z]\S*[0-9])|([0-9]\S*[a-zA-Z]))\S*'); 
+				if (userNameInput.length == 0) {
+					document.getElementById("available").innerHTML = "<div class='alert alert-warning'><strong>Username Must be Filled!</strong></div>";
+					return;
+				} 
+                if(userNameInput.length < 6 || !userNameInput.match(rExp)){
+                    document.getElementById("available").innerHTML = "<div class='alert alert-danger'><strong>Requirememnts: <small>&#9632 Min 1 Number &#9632 Min 1 letter &#9632 Min 6 characters</small></strong></div>";
+                    return;
+                }
+                // proceed to server request
+				else {
+					var request = new ajaxRequest()
+					request.onreadystatechange = function() {
+						if(this.readyState == 4) {
+							if(this.status == 200) {
+								if(this.responseText != null) {
+									document.getElementById('available').innerHTML = this.responseText
+								}
+								else alert("Ajax error: No data received")
+							}		
+							else alert("Ajax error: " + this.statusText)
+						}		
+					}
+					request.open("GET","ifUsernameExists.php?user=" + userNameInput,true)
+					request.send(null)
+				}
+			}
+			function ajaxRequest() {
+				try {
+					var request = new XMLHttpRequest()
+				}
+				catch(e1) {
+					try {
+						request = new ActiveXObject("Msxml2.XMLHTTP")
+					}
+					catch(e2) {
+						try {
+							request = new ActiveXObject("Microsoft.XMLHTTP")
+						}
+						catch(e3) {
+							request = false
+						}
+					}
+				}
+				return request
+			}
+            
+            function validate()
+            {
+                // validate when submitting and return
+                
+                // regex
+                var regexMatch = /[a-zA-Z]+$/; // letters only
+                var regexMatchUser = /\S*(\S*([a-zA-Z]\S*[0-9])|([0-9]\S*[a-zA-Z]))\S*/; // min 1 letter. min 1 number
+                
+                var uname = document.getElementById('uN').value;
+                var fname = document.getElementById('fN').value;
+                var lname = document.getElementById('lN').value;
+                var pass = document.getElementById('pwd').value;
+                
+                // checking
+                if(uname == "" || fname == "" || lname == "" || pass == ""){
+                    alert("All fields must be entered!");
+                    return false;
+                }
+                if(pass.length < 6){
+                    alert("Password must have a minimum of 6 characters!");
+                    return false;
+                }
+                if(!fname.match(regexMatch) || !lname.match(regexMatch)){
+                    alert("First & Last names must be both entered. Characters only!!");
+                    return false;
+                }
+                if(uname.length < 6 || !uname.match(regexMatchUser)){
+                    alert("Username must follow the specified format!");
+                    return false;
+                }
+                
+            }
+        </script>
+        <footer class="page-footer" style="text-align: center">
+            <div class="footer-copyright"><div class="container-fluid">© 2017 Designed By: Bader Alanazi - CIS475</div></div>
+        </footer>
+    </body>
+</html>
